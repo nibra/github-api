@@ -96,9 +96,10 @@ class GithubObjectTest extends GitHubTestCase
 	{
 		$this->options->set('api.url', $apiUrl);
 
-		$this->assertThat(
+		self::assertEquals(
+			$expected,
 			$this->object->fetchUrl($path, $page, $limit),
-			$this->equalTo($expected)
+			'URL is not as expected.'
 		);
 	}
 
@@ -116,9 +117,9 @@ class GithubObjectTest extends GitHubTestCase
 		$this->options->set('api.username', 'MyTestUser');
 		$this->options->set('api.password', 'MyTestPass');
 
-		$this->assertThat(
+		self::assertEquals(
+			'https://MyTestUser:MyTestPass@api.github.com/gists',
 			$this->object->fetchUrl('/gists', 0, 0),
-			$this->equalTo('https://MyTestUser:MyTestPass@api.github.com/gists'),
 			'URL is not as expected.'
 		);
 	}
@@ -135,15 +136,23 @@ class GithubObjectTest extends GitHubTestCase
 
 		$this->object = new ObjectMock($this->options, $this->client);
 
-		$this->assertThat(
+		$clientBeforeFetchUrl = clone $this->client;
+
+		self::assertEquals(
+			'https://api.github.com/gists',
 			(string) $this->object->fetchUrl('/gists', 0, 0),
-			$this->equalTo('https://api.github.com/gists'),
 			'URL is not as expected.'
 		);
 
-		$this->assertThat(
+		self::assertEquals(
+			$clientBeforeFetchUrl,
+			$this->client,
+			'HTTP client should not have changed'
+		);
+
+		self::assertEquals(
+			array('Authorization' => 'token MyTestToken'),
 			$this->client->getOption('headers'),
-			$this->equalTo(['Authorization' => 'token MyTestToken']),
 			'Token should be propagated as a header.'
 		);
 	}
