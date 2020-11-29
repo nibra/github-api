@@ -91,6 +91,11 @@ abstract class AbstractGithubObject
 		$this->options = $options ?: new Registry;
 		$this->client  = $client ?: (new HttpFactory)->getHttp($this->options);
 
+		if ($this->options->get('gh.token', false))
+		{
+			$this->client->setOption('headers', ['Authorization' => 'token ' . $this->options->get('gh.token')]);
+		}
+
 		$this->package = \get_class($this);
 		$this->package = substr($this->package, strrpos($this->package, '\\') + 1);
 	}
@@ -113,12 +118,7 @@ abstract class AbstractGithubObject
 		// Get a new Uri object focusing the api url and given path.
 		$uri = new Uri($this->options->get('api.url') . $path);
 
-		if ($this->options->get('gh.token', false))
-		{
-			// Use oAuth authentication - @todo set in request header ?
-			$uri->setVar('access_token', $this->options->get('gh.token'));
-		}
-		else
+		if (!$this->options->get('gh.token', false))
 		{
 			// Use basic authentication
 			if ($this->options->get('api.username', false))
