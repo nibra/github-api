@@ -96,11 +96,6 @@ abstract class AbstractGithubObject
 			$this->client->setOption('headers', ['Authorization' => 'token ' . $this->options->get('gh.token')]);
 		}
 
-		if ($this->options->get('gh.token', false))
-		{
-			$this->client->setOption('headers', array('Authorization' => 'token ' . $this->options->get('gh.token')));
-		}
-
 		$this->package = \get_class($this);
 		$this->package = substr($this->package, strrpos($this->package, '\\') + 1);
 	}
